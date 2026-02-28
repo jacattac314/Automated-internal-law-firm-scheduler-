@@ -1,0 +1,1217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Meridian Legal — Claims Automation Platform</title>
+<style>
+  /* ── Reset & Base ─────────────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy:   #0f172a;
+    --navy2:  #1e293b;
+    --gold:   #c9a84c;
+    --gold2:  #e8c96a;
+    --bg:     #f1f5f9;
+    --white:  #ffffff;
+    --border: #e2e8f0;
+    --txt1:   #0f172a;
+    --txt2:   #64748b;
+    --txt3:   #94a3b8;
+    --green:  #10b981;
+    --amber:  #f59e0b;
+    --red:    #ef4444;
+    --blue:   #3b82f6;
+    --purple: #8b5cf6;
+    --radius: 10px;
+    --shadow: 0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.06);
+    --shadow-lg: 0 4px 24px rgba(0,0,0,.12);
+    --transition: .2s ease;
+  }
+
+  html { font-size: 15px; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--txt1);
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── Header ───────────────────────────────────────────────────── */
+  header {
+    background: var(--navy);
+    padding: 0 2rem;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 1px 0 rgba(255,255,255,.06);
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+  }
+  .logo-mark {
+    width: 28px; height: 28px;
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
+    border-radius: 6px;
+    display: grid;
+    place-items: center;
+    font-size: .7rem;
+    font-weight: 800;
+    color: var(--navy);
+    letter-spacing: -.5px;
+  }
+  .logo-text { color: #fff; font-size: .95rem; font-weight: 600; letter-spacing: -.2px; }
+  .logo-sub  { color: var(--txt3); font-size: .75rem; margin-left: .25rem; font-weight: 400; }
+
+  .header-right { display: flex; align-items: center; gap: .75rem; }
+
+  .badge-live {
+    display: flex; align-items: center; gap: .4rem;
+    background: rgba(16,185,129,.12);
+    border: 1px solid rgba(16,185,129,.25);
+    color: var(--green);
+    padding: .25rem .65rem;
+    border-radius: 20px;
+    font-size: .72rem;
+    font-weight: 600;
+    letter-spacing: .3px;
+    text-transform: uppercase;
+  }
+  .dot-live {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green);
+    animation: pulse-dot 1.8s ease infinite;
+  }
+  @keyframes pulse-dot {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: .5; transform: scale(.7); }
+  }
+
+  .btn-run {
+    display: flex; align-items: center; gap: .5rem;
+    background: linear-gradient(135deg, var(--gold), var(--gold2));
+    color: var(--navy);
+    border: none;
+    padding: .45rem 1rem;
+    border-radius: 7px;
+    font-size: .82rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: -.1px;
+    transition: var(--transition);
+    white-space: nowrap;
+  }
+  .btn-run:hover { filter: brightness(1.08); transform: translateY(-1px); }
+  .btn-run:active { transform: translateY(0); }
+  .btn-run:disabled { opacity: .55; cursor: not-allowed; transform: none; }
+  .btn-run svg { width: 14px; height: 14px; }
+
+  /* ── Tabs ─────────────────────────────────────────────────────── */
+  .tab-bar {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    gap: 0;
+  }
+  .tab {
+    padding: .85rem 1.2rem;
+    font-size: .82rem;
+    font-weight: 500;
+    color: var(--txt2);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: var(--transition);
+    display: flex; align-items: center; gap: .45rem;
+    white-space: nowrap;
+  }
+  .tab:hover { color: var(--txt1); }
+  .tab.active { color: var(--navy); border-color: var(--gold); font-weight: 600; }
+  .tab-icon { font-size: .9rem; }
+
+  /* ── Layout ───────────────────────────────────────────────────── */
+  main { max-width: 1280px; margin: 0 auto; padding: 1.75rem 2rem; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ── KPI Row ──────────────────────────────────────────────────── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+  .kpi {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.4rem;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--gold), var(--gold2));
+    opacity: 0;
+    transition: opacity .3s;
+  }
+  .kpi.updated::before { opacity: 1; }
+  .kpi-label { font-size: .72rem; font-weight: 600; color: var(--txt2); text-transform: uppercase; letter-spacing: .5px; margin-bottom: .5rem; }
+  .kpi-value { font-size: 2rem; font-weight: 700; color: var(--txt1); line-height: 1; letter-spacing: -1px; }
+  .kpi-sub   { font-size: .75rem; color: var(--txt3); margin-top: .35rem; }
+  .kpi-delta {
+    display: inline-flex; align-items: center; gap: .2rem;
+    font-size: .72rem; font-weight: 600;
+    padding: .15rem .45rem;
+    border-radius: 4px;
+    margin-top: .4rem;
+  }
+  .kpi-delta.up   { background: rgba(16,185,129,.1); color: var(--green); }
+  .kpi-delta.down { background: rgba(239,68,68,.1);  color: var(--red); }
+  .kpi-delta.warn { background: rgba(245,158,11,.1); color: var(--amber); }
+
+  /* ── Grid 2-col ───────────────────────────────────────────────── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  .grid-3 { display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+
+  /* ── Card ─────────────────────────────────────────────────────── */
+  .card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .card-head {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .card-title { font-size: .82rem; font-weight: 700; color: var(--txt1); letter-spacing: -.1px; }
+  .card-sub   { font-size: .72rem; color: var(--txt3); margin-top: .1rem; }
+  .card-body  { padding: 1.25rem; }
+
+  /* ── Status Bar Chart ─────────────────────────────────────────── */
+  .status-bars { display: flex; flex-direction: column; gap: .7rem; }
+  .status-row  { display: flex; align-items: center; gap: .75rem; }
+  .status-label { font-size: .75rem; color: var(--txt2); width: 110px; flex-shrink: 0; }
+  .bar-track { flex: 1; height: 8px; background: var(--bg); border-radius: 4px; overflow: hidden; }
+  .bar-fill  { height: 100%; border-radius: 4px; transition: width .6s cubic-bezier(.4,0,.2,1); }
+  .bar-ct    { font-size: .72rem; font-weight: 600; color: var(--txt2); width: 28px; text-align: right; flex-shrink: 0; }
+
+  /* ── Action Items ─────────────────────────────────────────────── */
+  .action-list { display: flex; flex-direction: column; gap: .5rem; }
+  .action-item {
+    display: flex; align-items: flex-start; gap: .75rem;
+    padding: .65rem .8rem;
+    border-radius: 7px;
+    background: var(--bg);
+    border-left: 3px solid transparent;
+    transition: background var(--transition);
+  }
+  .action-item:hover { background: #e8edf5; }
+  .action-item.urgent  { border-color: var(--red); }
+  .action-item.warning { border-color: var(--amber); }
+  .action-item.info    { border-color: var(--blue); }
+  .action-icon { font-size: 1rem; flex-shrink: 0; margin-top: .05rem; }
+  .action-text { flex: 1; }
+  .action-title { font-size: .78rem; font-weight: 600; color: var(--txt1); }
+  .action-meta  { font-size: .72rem; color: var(--txt3); margin-top: .1rem; }
+
+  /* ── Batch Workload ───────────────────────────────────────────── */
+  .workload-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem; }
+  .workload-item {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: .9rem 1rem;
+    text-align: center;
+  }
+  .workload-num  { font-size: 1.5rem; font-weight: 700; color: var(--txt1); letter-spacing: -1px; }
+  .workload-lbl  { font-size: .7rem; color: var(--txt3); margin-top: .2rem; text-transform: uppercase; letter-spacing: .4px; }
+  .workload-pill {
+    display: inline-block;
+    margin-top: .4rem;
+    font-size: .65rem;
+    font-weight: 600;
+    padding: .1rem .4rem;
+    border-radius: 4px;
+    text-transform: uppercase;
+    letter-spacing: .3px;
+  }
+  .pill-green  { background: rgba(16,185,129,.1);  color: var(--green); }
+  .pill-amber  { background: rgba(245,158,11,.1);  color: var(--amber); }
+  .pill-red    { background: rgba(239,68,68,.1);   color: var(--red);   }
+  .pill-blue   { background: rgba(59,130,246,.1);  color: var(--blue);  }
+  .pill-navy   { background: rgba(15,23,42,.08);   color: var(--navy);  }
+
+  /* ── Claimant Table ───────────────────────────────────────────── */
+  .filter-bar {
+    display: flex; align-items: center; gap: .6rem;
+    padding: .85rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--white);
+    flex-wrap: wrap;
+  }
+  .filter-bar input {
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: .4rem .8rem;
+    font-size: .78rem;
+    color: var(--txt1);
+    outline: none;
+    width: 210px;
+    background: var(--bg);
+    transition: border-color var(--transition);
+  }
+  .filter-bar input:focus { border-color: var(--gold); background: var(--white); }
+  .filter-bar select {
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: .4rem .75rem;
+    font-size: .78rem;
+    color: var(--txt2);
+    outline: none;
+    background: var(--bg);
+    cursor: pointer;
+    transition: border-color var(--transition);
+  }
+  .filter-bar select:focus { border-color: var(--gold); }
+  .filter-count { margin-left: auto; font-size: .75rem; color: var(--txt3); }
+
+  .tbl-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: .78rem; }
+  thead th {
+    padding: .7rem 1rem;
+    background: var(--bg);
+    text-align: left;
+    font-size: .68rem;
+    font-weight: 700;
+    color: var(--txt3);
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+  }
+  thead th:hover { color: var(--txt2); }
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background var(--transition);
+  }
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: #f8fafc; }
+  tbody tr.highlight {
+    background: rgba(201,168,76,.08) !important;
+    animation: row-flash .6s ease;
+  }
+  @keyframes row-flash {
+    0%   { background: rgba(201,168,76,.25); }
+    100% { background: rgba(201,168,76,.08); }
+  }
+  td { padding: .7rem 1rem; color: var(--txt1); vertical-align: middle; }
+  td.mono { font-family: 'SF Mono', 'Fira Code', monospace; font-size: .72rem; color: var(--txt2); }
+
+  .status-chip {
+    display: inline-flex; align-items: center; gap: .3rem;
+    padding: .2rem .6rem;
+    border-radius: 20px;
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .2px;
+    white-space: nowrap;
+  }
+  .chip-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
+
+  .s-new       { background: rgba(59,130,246,.1);  color: var(--blue);   }
+  .s-new .chip-dot       { background: var(--blue); }
+  .s-review    { background: rgba(245,158,11,.1);  color: var(--amber);  }
+  .s-review .chip-dot    { background: var(--amber); }
+  .s-pending   { background: rgba(139,92,246,.1);  color: var(--purple); }
+  .s-pending .chip-dot   { background: var(--purple); }
+  .s-approved  { background: rgba(16,185,129,.1);  color: var(--green);  }
+  .s-approved .chip-dot  { background: var(--green); }
+  .s-escalated { background: rgba(239,68,68,.1);   color: var(--red);    }
+  .s-escalated .chip-dot { background: var(--red); }
+  .s-closed    { background: rgba(148,163,184,.1); color: var(--txt3);   }
+  .s-closed .chip-dot    { background: var(--txt3); }
+
+  .priority-chip {
+    font-size: .65rem; font-weight: 700; padding: .15rem .45rem;
+    border-radius: 4px; letter-spacing: .3px; text-transform: uppercase;
+  }
+  .p-high   { background: rgba(239,68,68,.1);  color: var(--red);   }
+  .p-med    { background: rgba(245,158,11,.1); color: var(--amber); }
+  .p-low    { background: rgba(16,185,129,.1); color: var(--green); }
+
+  /* ── Automation Flows ─────────────────────────────────────────── */
+  .flows-grid { display: grid; grid-template-columns: repeat(1, 1fr); gap: 1rem; }
+  .flow-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: box-shadow var(--transition), transform var(--transition);
+  }
+  .flow-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-1px); }
+  .flow-card.running { border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,168,76,.12); }
+
+  .flow-head {
+    display: flex; align-items: center; gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .flow-num {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--navy), var(--navy2));
+    color: var(--gold);
+    display: grid; place-items: center;
+    font-size: .8rem; font-weight: 800;
+    flex-shrink: 0;
+  }
+  .flow-name  { font-size: .85rem; font-weight: 700; color: var(--txt1); }
+  .flow-type  { font-size: .72rem; color: var(--txt3); margin-top: .1rem; }
+  .flow-status-badge {
+    margin-left: auto;
+    font-size: .68rem; font-weight: 700;
+    padding: .2rem .6rem; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: .3px;
+  }
+  .fsb-idle    { background: var(--bg); color: var(--txt3); }
+  .fsb-running { background: rgba(201,168,76,.12); color: var(--gold); animation: badge-pulse 1.2s ease infinite; }
+  .fsb-done    { background: rgba(16,185,129,.1); color: var(--green); }
+  @keyframes badge-pulse { 0%,100% { opacity: 1; } 50% { opacity: .6; } }
+
+  .flow-body { display: grid; grid-template-columns: 1fr auto; gap: 1rem; padding: 1rem 1.25rem; align-items: start; }
+  .flow-desc { font-size: .78rem; color: var(--txt2); line-height: 1.55; }
+  .flow-steps { display: flex; flex-direction: column; gap: .3rem; min-width: 240px; }
+  .flow-step {
+    display: flex; align-items: center; gap: .5rem;
+    font-size: .72rem; color: var(--txt2);
+    padding: .3rem .5rem;
+    border-radius: 5px;
+    transition: background var(--transition);
+  }
+  .flow-step.done    { color: var(--green); background: rgba(16,185,129,.05); }
+  .flow-step.active  { color: var(--gold);  background: rgba(201,168,76,.08); font-weight: 600; }
+  .flow-step.pending { color: var(--txt3); }
+  .step-icon { font-size: .8rem; width: 16px; text-align: center; flex-shrink: 0; }
+
+  .flow-metrics {
+    display: flex; gap: 1.5rem;
+    padding: .75rem 1.25rem;
+    border-top: 1px solid var(--border);
+    background: var(--bg);
+  }
+  .flow-metric-item { text-align: center; }
+  .flow-metric-val  { font-size: .9rem; font-weight: 700; color: var(--txt1); }
+  .flow-metric-lbl  { font-size: .65rem; color: var(--txt3); text-transform: uppercase; letter-spacing: .3px; margin-top: .1rem; }
+
+  /* ── Architecture diagram ─────────────────────────────────────── */
+  .arch-row { display: flex; align-items: center; gap: .5rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+  .arch-node {
+    display: flex; align-items: center; gap: .5rem;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: .5rem .9rem;
+    font-size: .75rem; font-weight: 600;
+    box-shadow: var(--shadow);
+  }
+  .arch-node .node-icon { font-size: 1rem; }
+  .arch-arrow { color: var(--txt3); font-size: .85rem; }
+
+  /* ── Toast ────────────────────────────────────────────────────── */
+  #toast-stack {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: .6rem;
+    z-index: 9999;
+    pointer-events: none;
+  }
+  .toast {
+    display: flex; align-items: flex-start; gap: .75rem;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: .8rem 1rem;
+    box-shadow: 0 4px 24px rgba(0,0,0,.14);
+    min-width: 300px;
+    max-width: 360px;
+    pointer-events: all;
+    animation: toast-in .3s cubic-bezier(.34,1.56,.64,1);
+    border-left: 3px solid var(--border);
+    transition: opacity .3s, transform .3s;
+  }
+  .toast.fade-out { opacity: 0; transform: translateX(20px); }
+  .toast.t-success { border-left-color: var(--green); }
+  .toast.t-warning { border-left-color: var(--amber); }
+  .toast.t-error   { border-left-color: var(--red);   }
+  .toast.t-info    { border-left-color: var(--blue);  }
+  .toast.t-gold    { border-left-color: var(--gold);  }
+  @keyframes toast-in {
+    from { opacity: 0; transform: translateX(30px) scale(.95); }
+    to   { opacity: 1; transform: translateX(0) scale(1); }
+  }
+  .toast-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: .05rem; }
+  .toast-content { flex: 1; }
+  .toast-title   { font-size: .78rem; font-weight: 700; color: var(--txt1); }
+  .toast-body    { font-size: .72rem; color: var(--txt2); margin-top: .15rem; line-height: 1.4; }
+  .toast-time    { font-size: .65rem; color: var(--txt3); margin-top: .3rem; }
+
+  /* ── Progress bar (simulation) ────────────────────────────────── */
+  #sim-progress {
+    position: fixed; top: 58px; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--gold), var(--gold2));
+    transform-origin: left;
+    transform: scaleX(0);
+    transition: transform .4s ease;
+    z-index: 99;
+  }
+
+  /* ── Scrollbar ────────────────────────────────────────────────── */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ── Responsive ───────────────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .flow-body { grid-template-columns: 1fr; }
+    .flow-steps { min-width: auto; }
+  }
+  @media (max-width: 600px) {
+    header { padding: 0 1rem; }
+    main { padding: 1rem; }
+    .tab-bar { padding: 0 1rem; }
+    .kpi-grid { grid-template-columns: 1fr 1fr; }
+    .workload-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- Progress bar -->
+<div id="sim-progress"></div>
+
+<!-- ── Header ───────────────────────────────────────────────── -->
+<header>
+  <div class="logo">
+    <div class="logo-mark">ML</div>
+    <span class="logo-text">Meridian Legal</span>
+    <span class="logo-sub">Claims Automation</span>
+  </div>
+  <div class="header-right">
+    <div class="badge-live"><div class="dot-live"></div>Live</div>
+    <button class="btn-run" id="btnRun" onclick="runSimulation()">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M3 2.5a.5.5 0 0 1 .765-.424l9 5.5a.5.5 0 0 1 0 .848l-9 5.5A.5.5 0 0 1 3 13.5v-11Z"/></svg>
+      Run Demo Simulation
+    </button>
+  </div>
+</header>
+
+<!-- ── Tabs ─────────────────────────────────────────────────── -->
+<div class="tab-bar">
+  <div class="tab active" onclick="setTab(0)" id="tab0"><span class="tab-icon">⬜</span> Dashboard</div>
+  <div class="tab"        onclick="setTab(1)" id="tab1"><span class="tab-icon">◧</span> Claimant Tracker</div>
+  <div class="tab"        onclick="setTab(2)" id="tab2"><span class="tab-icon">⬡</span> Automation Flows</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     TAB 0 — DASHBOARD
+═══════════════════════════════════════════════════════════ -->
+<main>
+<div class="panel active" id="panel0">
+
+  <!-- KPIs -->
+  <div class="kpi-grid">
+    <div class="kpi" id="kpi-total">
+      <div class="kpi-label">Total Claims</div>
+      <div class="kpi-value" id="kv-total">247</div>
+      <div class="kpi-delta up" id="kd-total">▲ 12 this week</div>
+    </div>
+    <div class="kpi" id="kpi-open">
+      <div class="kpi-label">Open &amp; Active</div>
+      <div class="kpi-value" id="kv-open">183</div>
+      <div class="kpi-delta warn" id="kd-open">▲ 5 pending review</div>
+    </div>
+    <div class="kpi" id="kpi-esc">
+      <div class="kpi-label">Escalated</div>
+      <div class="kpi-value" id="kv-esc">14</div>
+      <div class="kpi-delta down" id="kd-esc">▲ 3 since yesterday</div>
+    </div>
+    <div class="kpi" id="kpi-rt">
+      <div class="kpi-label">Avg. Resolution</div>
+      <div class="kpi-value" id="kv-rt">18<span style="font-size:1rem;font-weight:500">d</span></div>
+      <div class="kpi-delta up" id="kd-rt">▼ 4d vs last quarter</div>
+    </div>
+  </div>
+
+  <!-- Status breakdown + Action items -->
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-title">Status Breakdown</div>
+          <div class="card-sub">All active matters</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="status-bars" id="status-bars">
+          <div class="status-row">
+            <div class="status-label">New Intake</div>
+            <div class="bar-track"><div class="bar-fill" id="bar-new" style="width:28%;background:var(--blue)"></div></div>
+            <div class="bar-ct" id="bc-new">52</div>
+          </div>
+          <div class="status-row">
+            <div class="status-label">Under Review</div>
+            <div class="bar-track"><div class="bar-fill" id="bar-review" style="width:34%;background:var(--amber)"></div></div>
+            <div class="bar-ct" id="bc-review">63</div>
+          </div>
+          <div class="status-row">
+            <div class="status-label">Pending Docs</div>
+            <div class="bar-track"><div class="bar-fill" id="bar-pending" style="width:18%;background:var(--purple)"></div></div>
+            <div class="bar-ct" id="bc-pending">34</div>
+          </div>
+          <div class="status-row">
+            <div class="status-label">Approved</div>
+            <div class="bar-track"><div class="bar-fill" id="bar-approved" style="width:10%;background:var(--green)"></div></div>
+            <div class="bar-ct" id="bc-approved">19</div>
+          </div>
+          <div class="status-row">
+            <div class="status-label">Escalated</div>
+            <div class="bar-track"><div class="bar-fill" id="bar-esc" style="width:8%;background:var(--red)"></div></div>
+            <div class="bar-ct" id="bc-esc">14</div>
+          </div>
+          <div class="status-row">
+            <div class="status-label">Closed</div>
+            <div class="bar-track"><div class="bar-fill" id="bar-closed" style="width:3%;background:var(--txt3)"></div></div>
+            <div class="bar-ct" id="bc-closed">5</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head">
+        <div>
+          <div class="card-title">Action Items</div>
+          <div class="card-sub">Requires attention today</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="action-list" id="action-list">
+          <div class="action-item urgent">
+            <div class="action-icon">🔴</div>
+            <div class="action-text">
+              <div class="action-title">3 escalations unassigned</div>
+              <div class="action-meta">Over 48h without attorney response</div>
+            </div>
+          </div>
+          <div class="action-item warning">
+            <div class="action-icon">🟡</div>
+            <div class="action-text">
+              <div class="action-title">Court deadline in 2 days</div>
+              <div class="action-meta">Matter #CLM-2024-089 — Harrison v. Apex</div>
+            </div>
+          </div>
+          <div class="action-item warning">
+            <div class="action-icon">🟡</div>
+            <div class="action-text">
+              <div class="action-title">8 docs pending review</div>
+              <div class="action-meta">Batch uploaded 9:14 AM — awaiting sign-off</div>
+            </div>
+          </div>
+          <div class="action-item info">
+            <div class="action-icon">🔵</div>
+            <div class="action-text">
+              <div class="action-title">Weekly report scheduled</div>
+              <div class="action-meta">Flow 5 triggers at 5:00 PM today</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Batch workload -->
+  <div class="card">
+    <div class="card-head">
+      <div>
+        <div class="card-title">Today's Batch Workload</div>
+        <div class="card-sub">Automated across all 5 flows — updated in real time</div>
+      </div>
+      <span class="pill-navy priority-chip" style="font-size:.72rem;padding:.2rem .6rem;background:var(--bg);color:var(--txt3);">Feb 28, 2026</span>
+    </div>
+    <div class="card-body">
+      <div class="workload-grid">
+        <div class="workload-item">
+          <div class="workload-num" id="wl-intake">23</div>
+          <div class="workload-lbl">New Intakes</div>
+          <div class="workload-pill pill-blue">Flow 1</div>
+        </div>
+        <div class="workload-item">
+          <div class="workload-num" id="wl-alerts">47</div>
+          <div class="workload-lbl">Alerts Sent</div>
+          <div class="workload-pill pill-amber">Flow 2</div>
+        </div>
+        <div class="workload-item">
+          <div class="workload-num" id="wl-batch">138</div>
+          <div class="workload-lbl">Batch Updates</div>
+          <div class="workload-pill pill-green">Flow 3</div>
+        </div>
+        <div class="workload-item">
+          <div class="workload-num" id="wl-esc">6</div>
+          <div class="workload-lbl">Escalations</div>
+          <div class="workload-pill pill-red">Flow 4</div>
+        </div>
+        <div class="workload-item">
+          <div class="workload-num" id="wl-reports">1</div>
+          <div class="workload-lbl">Reports</div>
+          <div class="workload-pill pill-navy">Flow 5</div>
+        </div>
+        <div class="workload-item">
+          <div class="workload-num" id="wl-saved" style="color:var(--green)">9.4h</div>
+          <div class="workload-lbl">Staff Hours Saved</div>
+          <div class="workload-pill pill-green">Automation</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /panel0 -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     TAB 1 — CLAIMANT TRACKER
+═══════════════════════════════════════════════════════════ -->
+<div class="panel" id="panel1">
+  <div class="card" style="margin-bottom:0">
+    <!-- Filter bar -->
+    <div class="filter-bar">
+      <input type="text" id="search-input" placeholder="Search claimant or matter…" oninput="filterTable()" />
+      <select id="filter-status" onchange="filterTable()">
+        <option value="">All Statuses</option>
+        <option value="New Intake">New Intake</option>
+        <option value="Under Review">Under Review</option>
+        <option value="Pending Docs">Pending Docs</option>
+        <option value="Approved">Approved</option>
+        <option value="Escalated">Escalated</option>
+        <option value="Closed">Closed</option>
+      </select>
+      <select id="filter-attorney" onchange="filterTable()">
+        <option value="">All Attorneys</option>
+        <option value="J. Harrington">J. Harrington</option>
+        <option value="M. Chen">M. Chen</option>
+        <option value="S. Patel">S. Patel</option>
+        <option value="R. Okafor">R. Okafor</option>
+      </select>
+      <select id="filter-priority" onchange="filterTable()">
+        <option value="">All Priorities</option>
+        <option value="High">High</option>
+        <option value="Medium">Medium</option>
+        <option value="Low">Low</option>
+      </select>
+      <span class="filter-count" id="filter-count">Showing 20 of 20</span>
+    </div>
+    <!-- Table -->
+    <div class="tbl-wrap">
+      <table id="claimant-table">
+        <thead>
+          <tr>
+            <th>Matter #</th>
+            <th>Claimant</th>
+            <th>Matter Type</th>
+            <th>Attorney</th>
+            <th>Status</th>
+            <th>Priority</th>
+            <th>Next Deadline</th>
+            <th>Days Open</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     TAB 2 — AUTOMATION FLOWS
+═══════════════════════════════════════════════════════════ -->
+<div class="panel" id="panel2">
+
+  <!-- Architecture -->
+  <div class="card" style="margin-bottom:1rem">
+    <div class="card-head">
+      <div>
+        <div class="card-title">Integration Architecture</div>
+        <div class="card-sub">Power Automate → SharePoint → Teams → Outlook → Excel</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="arch-row">
+        <div class="arch-node"><span class="node-icon">📋</span>SharePoint List</div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-node"><span class="node-icon">⚡</span>Power Automate</div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-node"><span class="node-icon">💬</span>Teams Notify</div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-node"><span class="node-icon">📧</span>Outlook Alert</div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-node"><span class="node-icon">📊</span>Excel Tracker</div>
+      </div>
+      <div class="arch-row" style="margin-bottom:0">
+        <div class="arch-node"><span class="node-icon">📝</span>Matter Intake Form</div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-node"><span class="node-icon">⚡</span>Flow 1</div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-node"><span class="node-icon">👤</span>Auto-Assign Attorney</div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-node"><span class="node-icon">📋</span>Create SharePoint Row</div>
+        <div class="arch-arrow">→</div>
+        <div class="arch-node"><span class="node-icon">✅</span>Confirm to Claimant</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Flow cards -->
+  <div class="flows-grid" id="flows-grid"></div>
+</div>
+
+</main><!-- /main -->
+
+<!-- Toast stack -->
+<div id="toast-stack"></div>
+
+<script>
+// ── Data ──────────────────────────────────────────────────────────────
+
+const CLAIMANTS = [
+  { id:'CLM-2024-089', name:'Harrison, M.',   type:'Personal Injury',    atty:'J. Harrington', status:'Escalated',   priority:'High',   deadline:'Mar 02', days:94 },
+  { id:'CLM-2024-112', name:'Osei, A.',        type:'Workers Comp',       atty:'M. Chen',       status:'Under Review',priority:'High',   deadline:'Mar 08', days:77 },
+  { id:'CLM-2024-134', name:'Petrov, D.',      type:'Property Damage',    atty:'S. Patel',      status:'Pending Docs',priority:'Medium', deadline:'Mar 15', days:61 },
+  { id:'CLM-2024-156', name:'Nakamura, R.',    type:'Medical Malpractice',atty:'R. Okafor',     status:'New Intake',  priority:'High',   deadline:'Mar 04', days:48 },
+  { id:'CLM-2024-178', name:'García, L.',      type:'Personal Injury',    atty:'J. Harrington', status:'Under Review',priority:'Medium', deadline:'Mar 20', days:41 },
+  { id:'CLM-2024-199', name:'Williams, T.',    type:'Employment',          atty:'M. Chen',       status:'Approved',    priority:'Low',    deadline:'Apr 01', days:35 },
+  { id:'CLM-2024-203', name:'Singh, P.',       type:'Property Damage',    atty:'S. Patel',      status:'New Intake',  priority:'Medium', deadline:'Mar 18', days:33 },
+  { id:'CLM-2024-217', name:'O\'Brien, F.',    type:'Workers Comp',       atty:'R. Okafor',     status:'Pending Docs',priority:'High',   deadline:'Mar 06', days:28 },
+  { id:'CLM-2024-231', name:'Kim, J.',         type:'Medical Malpractice',atty:'J. Harrington', status:'Under Review',priority:'Low',    deadline:'Mar 25', days:22 },
+  { id:'CLM-2024-245', name:'Mensah, K.',      type:'Personal Injury',    atty:'M. Chen',       status:'Escalated',   priority:'High',   deadline:'Mar 03', days:18 },
+  { id:'CLM-2024-258', name:'Leblanc, C.',     type:'Employment',          atty:'S. Patel',      status:'New Intake',  priority:'Low',    deadline:'Apr 10', days:15 },
+  { id:'CLM-2024-267', name:'Ramirez, V.',     type:'Property Damage',    atty:'R. Okafor',     status:'Under Review',priority:'Medium', deadline:'Mar 22', days:12 },
+  { id:'CLM-2024-279', name:'Thompson, B.',    type:'Workers Comp',       atty:'J. Harrington', status:'Approved',    priority:'Low',    deadline:'Apr 05', days:10 },
+  { id:'CLM-2024-283', name:'Johansson, E.',   type:'Personal Injury',    atty:'M. Chen',       status:'New Intake',  priority:'Medium', deadline:'Mar 28', days: 9 },
+  { id:'CLM-2024-291', name:'Nwosu, C.',       type:'Medical Malpractice',atty:'S. Patel',      status:'Pending Docs',priority:'High',   deadline:'Mar 07', days: 7 },
+  { id:'CLM-2024-296', name:'Castillo, M.',    type:'Employment',          atty:'R. Okafor',     status:'Under Review',priority:'Medium', deadline:'Mar 30', days: 6 },
+  { id:'CLM-2024-302', name:'Adeyemi, F.',     type:'Property Damage',    atty:'J. Harrington', status:'New Intake',  priority:'Low',    deadline:'Apr 15', days: 5 },
+  { id:'CLM-2024-308', name:'Ivanova, N.',     type:'Workers Comp',       atty:'M. Chen',       status:'Escalated',   priority:'High',   deadline:'Mar 01', days: 4 },
+  { id:'CLM-2024-314', name:'Park, S.',        type:'Personal Injury',    atty:'S. Patel',      status:'Under Review',priority:'Medium', deadline:'Mar 26', days: 3 },
+  { id:'CLM-2024-319', name:'Okafor, D.',      type:'Employment',          atty:'R. Okafor',     status:'Closed',      priority:'Low',    deadline:'—',       days: 2 },
+];
+
+const FLOWS = [
+  {
+    num: 1,
+    name: 'New Matter Intake',
+    type: 'Trigger: Form submission → Immediate',
+    desc: 'When a new claimant form is submitted, the flow auto-generates a matter number, assigns the next available attorney by workload, creates the SharePoint row, and sends a confirmation email to the claimant within 60 seconds.',
+    steps: [
+      { label: 'Form submitted via SharePoint/Teams' },
+      { label: 'Generate matter ID (CLM-YYYY-###)' },
+      { label: 'Query attorney workload → assign lowest' },
+      { label: 'Create row in Claimant Tracker' },
+      { label: 'Send confirmation email to claimant' },
+    ],
+    metrics: [{ val: '<60s', lbl: 'Response Time' }, { val: '23', lbl: 'Today' }, { val: '100%', lbl: 'Success Rate' }],
+  },
+  {
+    num: 2,
+    name: 'Deadline Alert Engine',
+    type: 'Trigger: Scheduled — daily 8:00 AM',
+    desc: 'Scans all open matters for deadlines within the next 7 days. Sends tiered alerts: Teams message (7 days), Outlook reminder (3 days), and urgent escalation ping to senior partner (1 day).',
+    steps: [
+      { label: 'Recurrence trigger at 8:00 AM' },
+      { label: 'Query all open matters with deadlines' },
+      { label: 'Apply tiered logic (7d / 3d / 1d)' },
+      { label: 'Post Teams adaptive card to attorney' },
+      { label: 'Log alert in SharePoint audit trail' },
+    ],
+    metrics: [{ val: '47', lbl: 'Sent Today' }, { val: '8:01 AM', lbl: 'Last Run' }, { val: '0', lbl: 'Missed' }],
+  },
+  {
+    num: 3,
+    name: 'Batch Status Update',
+    type: 'Trigger: Manual button or scheduled 12:00 PM',
+    desc: 'Processes bulk status changes across multiple matters simultaneously. Validates transitions (e.g., cannot move from Closed to Review), updates SharePoint, syncs the Excel tracker, and logs every change with timestamp and user.',
+    steps: [
+      { label: 'Receive batch input (array of matter IDs)' },
+      { label: 'Validate each status transition' },
+      { label: 'Apply-to-each → update SharePoint rows' },
+      { label: 'Sync changes to Excel workbook' },
+      { label: 'Generate change-log entry per matter' },
+    ],
+    metrics: [{ val: '138', lbl: 'Updates Today' }, { val: '1.2s', lbl: 'Avg Per Item' }, { val: '99.3%', lbl: 'Accuracy' }],
+  },
+  {
+    num: 4,
+    name: 'Escalation & Triage',
+    type: 'Trigger: Condition-based — every 4 hours',
+    desc: 'Monitors for matters that breach SLA thresholds: open > 90 days, no attorney activity > 48h, or court date < 2 days away. Automatically escalates to senior partner, flags in tracker, and creates a Teams incident channel.',
+    steps: [
+      { label: 'Check SLA conditions every 4 hours' },
+      { label: 'Identify breach (90d / 48h / 2d rules)' },
+      { label: 'Update status → Escalated in tracker' },
+      { label: 'Notify senior partner via Teams + email' },
+      { label: 'Create incident channel if court < 48h' },
+    ],
+    metrics: [{ val: '6', lbl: 'Escalated Today' }, { val: '14', lbl: 'Total Active' }, { val: '4h', lbl: 'Check Interval' }],
+  },
+  {
+    num: 5,
+    name: 'Weekly Summary Report',
+    type: 'Trigger: Scheduled — Friday 5:00 PM',
+    desc: 'Aggregates the full week\'s activity into an executive summary: new intakes, resolutions, escalations, SLA compliance rate, and attorney workload balance. Distributes via Outlook and posts to the firm\'s Teams general channel.',
+    steps: [
+      { label: 'Aggregate week\'s data from SharePoint' },
+      { label: 'Calculate KPIs and trend deltas' },
+      { label: 'Render HTML report from template' },
+      { label: 'Email to partners + associates' },
+      { label: 'Post summary card to Teams channel' },
+    ],
+    metrics: [{ val: 'Friday', lbl: 'Next Run' }, { val: '5:00 PM', lbl: 'Schedule' }, { val: '12', lbl: 'Recipients' }],
+  },
+];
+
+// ── Render ─────────────────────────────────────────────────────────────
+
+function statusClass(s) {
+  return { 'New Intake':'s-new','Under Review':'s-review','Pending Docs':'s-pending',
+            'Approved':'s-approved','Escalated':'s-escalated','Closed':'s-closed' }[s] || 's-new';
+}
+function priorityClass(p) {
+  return { High:'p-high', Medium:'p-med', Low:'p-low' }[p] || 'p-low';
+}
+
+let tableData = [...CLAIMANTS];
+
+function renderTable(data) {
+  const tbody = document.getElementById('table-body');
+  tbody.innerHTML = data.map(r => `
+    <tr id="row-${r.id}">
+      <td class="mono">${r.id}</td>
+      <td style="font-weight:600">${r.name}</td>
+      <td style="color:var(--txt2)">${r.type}</td>
+      <td style="color:var(--txt2)">${r.atty}</td>
+      <td><span class="status-chip ${statusClass(r.status)}"><span class="chip-dot"></span>${r.status}</span></td>
+      <td><span class="priority-chip ${priorityClass(r.priority)}">${r.priority}</span></td>
+      <td style="color:var(--txt2);font-size:.75rem">${r.deadline}</td>
+      <td style="font-weight:600;color:${r.days>60?'var(--red)':r.days>30?'var(--amber)':'var(--txt2)'}">${r.days}d</td>
+    </tr>`).join('');
+  document.getElementById('filter-count').textContent = `Showing ${data.length} of ${CLAIMANTS.length}`;
+}
+
+function filterTable() {
+  const q  = document.getElementById('search-input').value.toLowerCase();
+  const st = document.getElementById('filter-status').value;
+  const at = document.getElementById('filter-attorney').value;
+  const pr = document.getElementById('filter-priority').value;
+  const filtered = CLAIMANTS.filter(r =>
+    (!q  || r.id.toLowerCase().includes(q) || r.name.toLowerCase().includes(q)) &&
+    (!st || r.status   === st) &&
+    (!at || r.atty     === at) &&
+    (!pr || r.priority === pr)
+  );
+  renderTable(filtered);
+}
+
+function renderFlows() {
+  const grid = document.getElementById('flows-grid');
+  grid.innerHTML = FLOWS.map((f, i) => `
+    <div class="flow-card" id="flow-card-${i}">
+      <div class="flow-head">
+        <div class="flow-num">${f.num}</div>
+        <div>
+          <div class="flow-name">${f.name}</div>
+          <div class="flow-type">${f.type}</div>
+        </div>
+        <div class="flow-status-badge fsb-idle" id="fsb-${i}">Idle</div>
+      </div>
+      <div class="flow-body">
+        <div class="flow-desc">${f.desc}</div>
+        <div class="flow-steps" id="fsteps-${i}">
+          ${f.steps.map((s,j) => `
+            <div class="flow-step pending" id="fstep-${i}-${j}">
+              <span class="step-icon">○</span>${s.label}
+            </div>`).join('')}
+        </div>
+      </div>
+      <div class="flow-metrics">
+        ${f.metrics.map(m => `
+          <div class="flow-metric-item">
+            <div class="flow-metric-val">${m.val}</div>
+            <div class="flow-metric-lbl">${m.lbl}</div>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+}
+
+// ── Tabs ──────────────────────────────────────────────────────────────
+
+function setTab(i) {
+  document.querySelectorAll('.tab').forEach((t,j)  => t.classList.toggle('active', i===j));
+  document.querySelectorAll('.panel').forEach((p,j) => p.classList.toggle('active', i===j));
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────
+
+function toast(title, body, type='info') {
+  const icons = { success:'✅', warning:'⚠️', error:'🔴', info:'ℹ️', gold:'⚡' };
+  const el = document.createElement('div');
+  el.className = `toast t-${type}`;
+  const now = new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  el.innerHTML = `
+    <div class="toast-icon">${icons[type]||'ℹ️'}</div>
+    <div class="toast-content">
+      <div class="toast-title">${title}</div>
+      ${body ? `<div class="toast-body">${body}</div>` : ''}
+      <div class="toast-time">${now}</div>
+    </div>`;
+  const stack = document.getElementById('toast-stack');
+  stack.appendChild(el);
+  setTimeout(() => {
+    el.classList.add('fade-out');
+    setTimeout(() => el.remove(), 350);
+  }, 3800);
+}
+
+// ── Simulation ────────────────────────────────────────────────────────
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function setProgress(pct) {
+  document.getElementById('sim-progress').style.transform = `scaleX(${pct/100})`;
+}
+
+function pulseKpi(id) {
+  const el = document.getElementById(id);
+  el.classList.add('updated');
+  setTimeout(()=> el.classList.remove('updated'), 2000);
+}
+
+function updateKpiVal(id, val) {
+  document.getElementById(id).textContent = val;
+}
+
+function animateFlowStep(flowIdx, stepIdx) {
+  // mark previous done
+  if (stepIdx > 0) {
+    const prev = document.getElementById(`fstep-${flowIdx}-${stepIdx-1}`);
+    if (prev) { prev.className = 'flow-step done'; prev.querySelector('.step-icon').textContent = '✓'; }
+  }
+  const el = document.getElementById(`fstep-${flowIdx}-${stepIdx}`);
+  if (el) { el.className = 'flow-step active'; el.querySelector('.step-icon').textContent = '▶'; }
+}
+
+function finalizeFlow(flowIdx) {
+  const steps = FLOWS[flowIdx].steps.length;
+  for (let i = 0; i < steps; i++) {
+    const el = document.getElementById(`fstep-${flowIdx}-${i}`);
+    if (el) { el.className = 'flow-step done'; el.querySelector('.step-icon').textContent = '✓'; }
+  }
+  const card = document.getElementById(`flow-card-${flowIdx}`);
+  if (card) { card.classList.remove('running'); }
+  const badge = document.getElementById(`fsb-${flowIdx}`);
+  if (badge) { badge.className = 'flow-status-badge fsb-done'; badge.textContent = 'Complete'; }
+}
+
+function startFlow(flowIdx) {
+  const card  = document.getElementById(`flow-card-${flowIdx}`);
+  const badge = document.getElementById(`fsb-${flowIdx}`);
+  if (card)  card.classList.add('running');
+  if (badge) { badge.className = 'flow-status-badge fsb-running'; badge.textContent = 'Running…'; }
+  // reset steps
+  FLOWS[flowIdx].steps.forEach((_,j) => {
+    const el = document.getElementById(`fstep-${flowIdx}-${j}`);
+    if (el) { el.className = 'flow-step pending'; el.querySelector('.step-icon').textContent = '○'; }
+  });
+}
+
+function highlightRow(id) {
+  const row = document.getElementById(`row-${id}`);
+  if (row) { row.classList.add('highlight'); setTimeout(()=> row.classList.remove('highlight'), 2000); }
+}
+
+function updateRowStatus(matterId, newStatus) {
+  const row = document.getElementById(`row-${matterId}`);
+  if (!row) return;
+  const cell = row.cells[4];
+  cell.innerHTML = `<span class="status-chip ${statusClass(newStatus)}"><span class="chip-dot"></span>${newStatus}</span>`;
+  highlightRow(matterId);
+}
+
+let simRunning = false;
+
+async function runSimulation() {
+  if (simRunning) return;
+  simRunning = true;
+  const btn = document.getElementById('btnRun');
+  btn.disabled = true;
+  btn.innerHTML = `<svg viewBox="0 0 16 16" fill="currentColor" style="animation:spin 1s linear infinite"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1Zm0 12A5 5 0 1 1 8 3a5 5 0 0 1 0 10Z" opacity=".3"/><path d="M15 8A7 7 0 0 0 8 1v2a5 5 0 0 1 5 5h2Z"/></svg> Simulating…`;
+
+  // Switch to Flows tab
+  setTab(2);
+  setProgress(0);
+
+  await sleep(400);
+  toast('Simulation starting', 'Walking through all 5 Power Automate flows', 'gold');
+
+  // ── Flow 1: Intake ──────────────────────────────────────────────
+  await sleep(700);
+  setProgress(4);
+  startFlow(0);
+  toast('Flow 1 — New Matter Intake', 'Claimant form submitted', 'info');
+
+  await sleep(900);  animateFlowStep(0, 0); setProgress(8);
+  await sleep(900);  animateFlowStep(0, 1); setProgress(12);
+  toast('Flow 1', 'Generated ID: CLM-2024-320', 'info');
+  await sleep(900);  animateFlowStep(0, 2); setProgress(14);
+  await sleep(900);  animateFlowStep(0, 3); setProgress(16);
+  // Add row to table (visible if on tracker)
+  CLAIMANTS.push({ id:'CLM-2024-320', name:'NewClaim, T.', type:'Personal Injury', atty:'M. Chen', status:'New Intake', priority:'Medium', deadline:'Apr 20', days:0 });
+  renderTable(CLAIMANTS);
+  await sleep(900);  animateFlowStep(0, 4); setProgress(18);
+  toast('Flow 1 — Complete', 'CLM-2024-320 created · M. Chen assigned · Confirmation sent', 'success');
+  finalizeFlow(0);
+  setProgress(20);
+
+  // ── Flow 2: Deadline Alerts ────────────────────────────────────
+  await sleep(1000);
+  startFlow(1);
+  toast('Flow 2 — Deadline Alerts', 'Scanning open matters…', 'info');
+
+  await sleep(800);  animateFlowStep(1, 0); setProgress(25);
+  await sleep(800);  animateFlowStep(1, 1); setProgress(30);
+  await sleep(800);  animateFlowStep(1, 2); setProgress(34);
+  toast('Flow 2', 'CLM-2024-089 · Harrison — Court in 2 days', 'warning');
+  await sleep(800);  animateFlowStep(1, 3); setProgress(38);
+  // Highlight overdue rows
+  highlightRow('CLM-2024-089');
+  highlightRow('CLM-2024-308');
+  await sleep(800);  animateFlowStep(1, 4); setProgress(40);
+  toast('Flow 2 — Complete', '47 alerts sent · 3 urgent escalation pings', 'success');
+  finalizeFlow(1);
+  setProgress(42);
+
+  // ── Flow 3: Batch Update ───────────────────────────────────────
+  await sleep(1000);
+  startFlow(2);
+  toast('Flow 3 — Batch Status Update', 'Processing 138 status changes…', 'info');
+
+  await sleep(700);  animateFlowStep(2, 0); setProgress(47);
+  await sleep(700);  animateFlowStep(2, 1); setProgress(52);
+
+  // Update several rows visibly
+  const batchUpdates = [
+    { id:'CLM-2024-203', status:'Under Review' },
+    { id:'CLM-2024-267', status:'Pending Docs' },
+    { id:'CLM-2024-283', status:'Under Review' },
+    { id:'CLM-2024-296', status:'Approved'     },
+  ];
+  setTab(1);
+  for (const u of batchUpdates) {
+    updateRowStatus(u.id, u.status);
+    await sleep(400);
+  }
+  setTab(2);
+
+  await sleep(700);  animateFlowStep(2, 2); setProgress(56);
+  await sleep(700);  animateFlowStep(2, 3); setProgress(60);
+  toast('Flow 3', 'Excel workbook synced · 138 rows updated', 'success');
+  await sleep(700);  animateFlowStep(2, 4); setProgress(62);
+  toast('Flow 3 — Complete', 'All 138 updates committed · audit log written', 'success');
+  finalizeFlow(2);
+  setProgress(65);
+
+  // ── Flow 4: Escalation ────────────────────────────────────────
+  await sleep(1000);
+  startFlow(3);
+  toast('Flow 4 — Escalation & Triage', 'Checking SLA thresholds…', 'info');
+
+  await sleep(800);  animateFlowStep(3, 0); setProgress(70);
+  await sleep(800);  animateFlowStep(3, 1); setProgress(74);
+  toast('Flow 4', 'CLM-2024-308 · Ivanova — SLA breach (deadline tomorrow)', 'error');
+
+  // Update dashboard KPIs
+  updateKpiVal('kv-esc', '17'); pulseKpi('kpi-esc');
+  updateKpiVal('wl-esc', '9');
+
+  await sleep(800);  animateFlowStep(3, 2); setProgress(78);
+  updateRowStatus('CLM-2024-308', 'Escalated');
+  await sleep(800);  animateFlowStep(3, 3); setProgress(82);
+  await sleep(800);  animateFlowStep(3, 4); setProgress(84);
+  toast('Flow 4 — Complete', '3 new escalations · Senior partner notified · Teams channel created', 'success');
+  finalizeFlow(3);
+  setProgress(86);
+
+  // ── Flow 5: Weekly Report ─────────────────────────────────────
+  await sleep(1000);
+  startFlow(4);
+  toast('Flow 5 — Weekly Summary Report', 'Aggregating this week's activity…', 'gold');
+
+  await sleep(800);  animateFlowStep(4, 0); setProgress(89);
+  await sleep(800);  animateFlowStep(4, 1); setProgress(92);
+  // Update dashboard numbers
+  updateKpiVal('kv-total', '248'); pulseKpi('kpi-total');
+  updateKpiVal('wl-batch', '141');
+  updateKpiVal('wl-saved', '11.2h');
+  await sleep(800);  animateFlowStep(4, 2); setProgress(95);
+  await sleep(800);  animateFlowStep(4, 3); setProgress(97);
+  await sleep(800);  animateFlowStep(4, 4); setProgress(99);
+  toast('Flow 5 — Complete', 'Report sent to 12 recipients · Posted to #general', 'success');
+  finalizeFlow(4);
+  setProgress(100);
+
+  // ── Done ───────────────────────────────────────────────────────
+  await sleep(500);
+  toast('Simulation complete', 'All 5 flows executed · Dashboard & tracker updated', 'gold');
+
+  await sleep(1500);
+  setTab(0);
+
+  // Reset button
+  await sleep(1000);
+  btn.disabled = false;
+  btn.innerHTML = `<svg viewBox="0 0 16 16" fill="currentColor"><path d="M3 2.5a.5.5 0 0 1 .765-.424l9 5.5a.5.5 0 0 1 0 .848l-9 5.5A.5.5 0 0 1 3 13.5v-11Z"/></svg> Run Demo Simulation`;
+  setTimeout(()=> setProgress(0), 1200);
+  simRunning = false;
+}
+
+// ── Spin keyframe for button ──────────────────────────────────────────
+const style = document.createElement('style');
+style.textContent = '@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }';
+document.head.appendChild(style);
+
+// ── Init ──────────────────────────────────────────────────────────────
+renderTable(CLAIMANTS);
+renderFlows();
+</script>
+</body>
+</html>
