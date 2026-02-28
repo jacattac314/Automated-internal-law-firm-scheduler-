@@ -812,7 +812,7 @@ const CLAIMANTS = [
   { id:'CLM-2024-178', name:'García, L.',      type:'Personal Injury',    atty:'J. Harrington', status:'Under Review',priority:'Medium', deadline:'Mar 20', days:41 },
   { id:'CLM-2024-199', name:'Williams, T.',    type:'Employment',          atty:'M. Chen',       status:'Approved',    priority:'Low',    deadline:'Apr 01', days:35 },
   { id:'CLM-2024-203', name:'Singh, P.',       type:'Property Damage',    atty:'S. Patel',      status:'New Intake',  priority:'Medium', deadline:'Mar 18', days:33 },
-  { id:'CLM-2024-217', name:'O\'Brien, F.',    type:'Workers Comp',       atty:'R. Okafor',     status:'Pending Docs',priority:'High',   deadline:'Mar 06', days:28 },
+  { id:'CLM-2024-217', name:"O'Brien, F.",    type:'Workers Comp',       atty:'R. Okafor',     status:'Pending Docs',priority:'High',   deadline:'Mar 06', days:28 },
   { id:'CLM-2024-231', name:'Kim, J.',         type:'Medical Malpractice',atty:'J. Harrington', status:'Under Review',priority:'Low',    deadline:'Mar 25', days:22 },
   { id:'CLM-2024-245', name:'Mensah, K.',      type:'Personal Injury',    atty:'M. Chen',       status:'Escalated',   priority:'High',   deadline:'Mar 03', days:18 },
   { id:'CLM-2024-258', name:'Leblanc, C.',     type:'Employment',          atty:'S. Patel',      status:'New Intake',  priority:'Low',    deadline:'Apr 10', days:15 },
@@ -888,9 +888,9 @@ const FLOWS = [
     num: 5,
     name: 'Weekly Summary Report',
     type: 'Trigger: Scheduled — Friday 5:00 PM',
-    desc: 'Aggregates the full week\'s activity into an executive summary: new intakes, resolutions, escalations, SLA compliance rate, and attorney workload balance. Distributes via Outlook and posts to the firm\'s Teams general channel.',
+    desc: "Aggregates the full week's activity into an executive summary: new intakes, resolutions, escalations, SLA compliance rate, and attorney workload balance. Distributes via Outlook and posts to the firm's Teams general channel.",
     steps: [
-      { label: 'Aggregate week\'s data from SharePoint' },
+      { label: "Aggregate week's data from SharePoint" },
       { label: 'Calculate KPIs and trend deltas' },
       { label: 'Render HTML report from template' },
       { label: 'Email to partners + associates' },
@@ -1174,7 +1174,7 @@ async function runSimulation() {
   // ── Flow 5: Weekly Report ─────────────────────────────────────
   await sleep(1000);
   startFlow(4);
-  toast('Flow 5 — Weekly Summary Report', 'Aggregating this week's activity…', 'gold');
+  toast('Flow 5 — Weekly Summary Report', "Aggregating this week's activity\u2026", 'gold');
 
   await sleep(800);  animateFlowStep(4, 0); setProgress(89);
   await sleep(800);  animateFlowStep(4, 1); setProgress(92);
